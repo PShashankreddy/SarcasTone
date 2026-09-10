@@ -6,19 +6,19 @@ __pycache__/
 venv/
 .pytest_cache/
 
-# Data (all generated or large; regenerate via scripts)
-data/
+# Raw data (regenerate via download_mustard + convert_audio)
+data/raw/
 
-# Model checkpoints (too large for GitHub; reproduce via training scripts)
-checkpoints/
+# Audio clips + annotation pages (regenerate via segment_youtube + make-template/make-html)
+data/interim/custom_clips/
+data/interim/annotations/
+data/interim/whisper_transcripts.csv
 
-# Embeddings (generated; reproduce via training scripts)
-embeddings/
+# Model checkpoints — tracked via Git LFS (see .gitattributes)
+# (NOT excluded from git — files go through LFS)
 
 # OS / IDE
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
-
-AGENTS.md
