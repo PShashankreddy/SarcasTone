@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+
+# Data (all generated or large; regenerate via scripts)
+data/
+
+# Model checkpoints (too large for GitHub; reproduce via training scripts)
+checkpoints/
+
+# Embeddings (generated; reproduce via training scripts)
+embeddings/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+AGENTS.md

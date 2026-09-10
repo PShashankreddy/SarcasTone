@@ -1,0 +1,14 @@
+# PHASE 1: BERT text model hyperparameters (plan defaults)
+model_name: bert-base-uncased
+max_len: 128
+epochs: 3
+lr: 2.0e-5
+batch_size: 16
+weight_decay: 0.01
+warmup_ratio: 0.1
+seed: 42
+extract_embeddings: true   # dump [CLS] embeddings for Phase 3 fusion
+
+# Decision gate: test F1 >= 0.70 else tune lr/epochs/batch for 2-3 extra days
+gate:
+  min_test_f1_macro: 0.70

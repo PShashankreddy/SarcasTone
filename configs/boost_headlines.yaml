@@ -1,0 +1,9 @@
+# Booster stage 1: intermediate fine-tune on News Headlines v2 (~28.6k short texts)
+# Short headlines -> max_len 32 + batch 64 keeps CPU time ~15 min for 1 epoch.
+model_name: roberta-base
+epochs: 1
+lr: 2.0e-5
+batch_size: 64
+max_len: 32
+seed: 42
+extract_embeddings: false

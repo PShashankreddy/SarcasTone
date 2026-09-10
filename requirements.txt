@@ -1,0 +1,24 @@
+# Core
+numpy
+pandas
+scikit-learn
+pyyaml
+tqdm
+matplotlib
+seaborn
+
+# Deep learning / NLP
+torch
+transformers
+
+# Audio
+praat-parselmouth
+librosa
+soundfile
+imageio-ffmpeg
+
+# ASR / video download
+yt-dlp
+
+# Tests
+pytest

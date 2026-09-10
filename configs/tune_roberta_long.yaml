@@ -1,0 +1,7 @@
+# tuning run: roberta, no context, longer schedule
+model_name: roberta-base
+epochs: 5
+lr: 3.0e-5
+batch_size: 16
+seed: 42
+extract_embeddings: false

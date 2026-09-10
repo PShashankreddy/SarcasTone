@@ -1,0 +1,23 @@
+{
+  "accuracy": 0.6346153846153846,
+  "precision_macro": 0.6346153846153846,
+  "recall_macro": 0.6346153846153846,
+  "f1_macro": 0.6346153846153846,
+  "f1_sarcasm": 0.6346153846153846,
+  "confusion_matrix": [
+    [
+      33,
+      19
+    ],
+    [
+      19,
+      33
+    ]
+  ],
+  "n": 104,
+  "model_name": "bert-base-uncased",
+  "use_context": true,
+  "lr": 2e-05,
+  "epochs": 3,
+  "batch_size": 16
+}

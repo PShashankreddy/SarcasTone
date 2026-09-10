@@ -1,0 +1,27 @@
+# PHASE 2: acoustic model hyperparameters
+sequence:
+  sr: 16000
+  n_mfcc: 13          # + deltas + delta-deltas + RMS energy = 40 dims
+  max_frames: 200     # ~12.5 s at 20 ms hop; longer truncated
+
+cnn:
+  hidden: 64
+  dropout: 0.3
+  epochs: 60
+  lr: 1.0e-3
+  weight_decay: 1.0e-4
+  batch_size: 32
+  early_stop_patience: 8
+
+rnn:
+  hidden: 64
+  layers: 1
+  dropout: 0.3
+
+praat_pitch_range: [75, 600]   # Hz; f0_p05==0 signals bad/unvoiced audio -> diagnose
+seed: 42
+extract_embeddings: true
+
+# Decision gate (weaker modality): test F1 >= 0.45
+gate:
+  min_test_f1_macro: 0.45

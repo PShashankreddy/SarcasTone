@@ -1,0 +1,9 @@
+# Booster stage 2: fine-tune the headline-tuned checkpoint on MUStARD++
+# Same winning recipe as champion (5 ep / lr 3e-5) for a fair comparison.
+model_name: checkpoints/text_roberta_nh   # local checkpoint from stage 1
+epochs: 5
+lr: 3.0e-5
+batch_size: 16
+max_len: 128
+seed: 42
+extract_embeddings: true                  # canonical npz refreshed only if we promote it

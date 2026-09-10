@@ -1,0 +1,26 @@
+# PHASE 3: fusion hyperparameters
+early_fusion:
+  input_dim: null      # auto = text_emb_dim + speech_emb_dim (768+128 by default)
+  hidden: 256
+  dropout: 0.3
+  epochs: 80
+  lr: 1.0e-3
+  weight_decay: 1.0e-4
+  batch_size: 32
+  early_stop_patience: 10
+
+late_fusion:
+  weight_grid_step: 0.05   # w tuned on val macro-F1: p = w*p_text + (1-w)*p_speech
+
+speech_model_for_fusion: cnn    # or rnn
+significance:
+  n_boot: 2000
+  alpha: 0.05
+
+seed: 42
+
+# Success criteria: multimodal F1 > text F1 (target +3-5 points), p < 0.05
+success:
+  fusion_beats_text: true
+  target_delta_f1_points: [3, 5]
+  max_p_value: 0.05

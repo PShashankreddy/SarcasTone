@@ -1,0 +1,23 @@
+{
+  "accuracy": 0.9196366177498253,
+  "precision_macro": 0.9222589101461258,
+  "recall_macro": 0.9179237613532524,
+  "f1_macro": 0.919123338567353,
+  "f1_sarcasm": 0.9126803340926348,
+  "confusion_matrix": [
+    [
+      1430,
+      69
+    ],
+    [
+      161,
+      1202
+    ]
+  ],
+  "n": 2862,
+  "model_name": "roberta-base",
+  "use_context": false,
+  "lr": 2e-05,
+  "epochs": 1,
+  "batch_size": 64
+}

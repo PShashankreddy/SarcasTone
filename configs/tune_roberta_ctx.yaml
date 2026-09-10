@@ -1,0 +1,7 @@
+# tuning run: roberta + context, extended epochs
+model_name: roberta-base
+epochs: 4
+lr: 2.0e-5
+batch_size: 16
+seed: 42
+extract_embeddings: false
