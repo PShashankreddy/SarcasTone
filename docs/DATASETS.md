@@ -16,6 +16,14 @@ Extra text corpus = News Headlines v2 (bigger, cleaner supervision for the text 
 | PodSarc (11,024) | pre-training booster + its own separate evaluation track (never in MUStARD test) |
 | Custom annotated sample (~300) | out-of-domain independent final evaluation (+ IAA) |
 
+> **Expansion outcome (2026-09-21):** growing train 482 → 996 did **not** produce a
+> statistically reliable text gain. Single run: test 0.687 → 0.666 (T4a). 5-fold
+> ensemble: fold-mean 0.624 → 0.653, test 0.651 → 0.702 — but 0.702 vs 0.687 is not
+> significant (dF1 +0.015, 95% CI [−0.070, +0.102], p=0.36). The 514 extra clips are
+> somewhat off-distribution vs the locked test (later BBT seasons + Silicon Valley).
+> Full numbers: `reports/phase1_t4_colab_ensemble.json`. The locked test set was
+> never used for any selection.
+
 ## 1. Primary: MUStARD++ full (text + audio + labels)
 
 | | |

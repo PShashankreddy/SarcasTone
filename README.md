@@ -13,12 +13,18 @@ Phase 3  fusion               early MLP / late voting         target: beat speec
 
 | Phase | Modality | Model | Test macro-F1 | Test acc | Gate |
 |---|---|---|---|---|---|
-| 1 | Text | RoBERTa boosted (News Headlines → MUStARD++) | 0.687 | 0.692 | 0.70 — missed by 0.013 |
+| 1 | Text | RoBERTa boosted → 5-fold ensemble | 0.687 single / **0.702** ensemble | 0.692 | 0.70 — not met significantly |
 | 2 | Speech | 1D-CNN over 40-dim MFCC frames | **0.718** | 0.721 | 0.45 — passed by 0.268 |
 | 3 | Fusion | *not yet run* | — | — | beat 0.718 |
 
-Key finding: **the voice (0.718) outperforms the words (0.687)** — sarcasm in MUStARD++
+Key finding: **the voice (0.718) outperforms the words (0.687–0.702)** — sarcasm in MUStARD++
 is carried substantially by vocal performance.
+
+**Phase 1 honesty note:** no text configuration significantly beats another on the locked
+104-clip test — every paired-bootstrap 95% CI crosses zero (ensemble 0.702 vs single-split
+champion 0.687: dF1 +0.015, p=0.36). The robust 5-fold text skill is ~0.62–0.65; the higher
+figures are the favourable tail of a wide distribution. Details in
+`docs/PHASE1_OBJECTIVES.md` and `reports/phase1_t4_colab_ensemble.json`.
 
 ## Setup
 
@@ -51,6 +57,7 @@ D:\sarcastone\
 ├── scripts/                    # one-command phase pipelines (PowerShell)
 ├── reports/                    # metrics JSONs, error analyses, confusion PNGs
 ├── docs/                       # project overview, plain-English guides, datasets
+├── notebooks/                  # Colab notebooks: 00_setup, 01_text, 02_speech, 03_experiments
 ├── praat/                      # standalone Praat extraction script
 ├── checkpoints/                # trained model weights (gitignored, ~2.3 GB)
 ├── embeddings/                 # per-split embeddings for fusion (gitignored)
@@ -120,6 +127,7 @@ D:\sarcastone\
 |---|---|
 | `text_bert.yaml` | Phase 1 BERT: bert-base-uncased, 3 epochs, lr=2e-5, max_len=128 |
 | `boost_headlines.yaml` | Stage 1: roberta-base on News Headlines, 1 epoch, lr=2e-5 |
+| `boost_mustard_exp.yaml` | Stage 2 on the expanded train (996): roberta, 5 epochs, lr=3e-5 |
 | `boost_mustard.yaml` | Stage 2: fine-tune NH checkpoint on MUStARD++, 5 epochs, lr=3e-5 |
 | `tune_roberta_ctx.yaml` | Tuning run: roberta + context, 4 epochs, lr=2e-5 |
 | `tune_roberta_long.yaml` | Tuning run: roberta, no context, 5 epochs, lr=3e-5 |
@@ -142,6 +150,8 @@ D:\sarcastone\
 | `phase2_summary.md` | Full Phase 2 report: pipeline, CNN vs LR, feature importance, Whisper audit |
 | `phase{1,2}_*_test_metrics.json` | Per-model test metrics (accuracy, P/R/F1, confusion) |
 | `phase{1,2}_*_error_analysis.md` | Per-model FP/FN error tables with sample-level details |
+| `phase1_t4_colab_ensemble.json` | Colab GPU 5-fold ensembles E1 (locked) / E2 (expanded) + pairwise significance + T6 verdict |
+| `phase1_{cv,significance,speaker_independent}.*` | 5-fold CV (0.626±0.036), McNemar/bootstrap tests, speaker-independent split |
 | `figures/*.png` | Confusion matrix heatmaps (7 models) |
 
 ### Documentation (`docs/`)
@@ -149,11 +159,25 @@ D:\sarcastone\
 | File | Contents |
 |---|---|
 | `PROJECT_OVERVIEW.md` | Complete project record: every step, every number, bugs found, decisions made |
+| `PHASE1_OBJECTIVES.md` | Formal Phase 1 T1–T8 objectives, acceptance criteria, progress log, gate verdict |
 | `PHASE2_PLAIN_ENGLISH.md` | Phase 2 explained without jargon — materials, models, results, full glossary |
 | `DATASETS.md` | Dataset registry: MUStARD++ primary, News Headlines booster, custom YouTube set, rejected options |
 | `ANNOTATOR_GUIDELINES.md` | Annotator instruction sheet for the custom dataset labeling task |
 
 ## Reproducing results
+
+### Notebooks (recommended — runs the heavy jobs on a free Colab GPU)
+
+Open from GitHub (`Runtime → Change runtime type → T4 GPU`, then Run all):
+
+- `00_setup.ipynb` — clone, `git lfs pull`, verify the locked-split SHA, environment check
+- `01_text.ipynb` — textual baselines + fine-tuning ladder (reproduces 0.687)
+- `02_speech.ipynb` — acoustic features + CNN/RNN (reproduces 0.718)
+- `03_experiments.ipynb` — 5-fold ensembles E1/E2, DeBERTa probe E3, significance tests
+
+```text
+https://colab.research.google.com/github/PShashankreddy/SarcasTone/blob/main/notebooks/00_setup.ipynb
+```
 
 ### Phase 1 — text
 
@@ -211,24 +235,30 @@ python -m sarcastone.inference.predict_multimodal --text "Oh great." --audio dat
 
 Decision record: [`docs/DATASETS.md`](docs/DATASETS.md).
 
-1. **MUStARD++** (primary): 690 utterances from *Friends*, *The Golden Girls*, *The Big Bang Theory*, etc. — auto-downloaded by `download_mustard`.
+1. **MUStARD++** (primary): full **1,202** utterances — the locked 482/104/104 benchmark is
+   drawn from the original 690 (test changed by nothing since); the extra 514 clips
+   (BBT S9–12, Silicon Valley) join **training only** (train 482 → 996). Locked topology and
+   audio-provenance caveats: [`docs/DATASETS.md`](docs/DATASETS.md).
 2. **News Headlines v2** (text booster): ~28.6 k sarcasm headlines from Kaggle — optional pre-training corpus.
 3. **Custom YouTube set** (stretch goal): 8 conversational videos → 944 utterance clips → 300-clip annotation sample with 3 annotators.
 
 ## Limitations
 
-- Small test set (n=104) → wide confidence intervals; report both val and test.
-- Speaker overlap across splits (speaker-independent split = future extension).
+- Small test set (n=104) → wide confidence intervals; report both val and test, and never
+  claim a win without a paired-bootstrap / McNemar test (implemented in `evaluation/significance.py`).
+- Speaker overlap across splits is measured: a speaker-independent split scores 0.582 vs
+  0.585 random (`reports/phase1_speaker_independent.*`), i.e. no meaningful speaker leakage.
 - `intensity_mean_db` dominance partly reflects per-show audio mastering, not pure speaker intent.
-- All models are CPU-only (no CUDA).
+- Local training is CPU-only (no CUDA); the 5-fold ensembles were run on a Colab T4 GPU.
 
 ## Project status
 
 | Phase | Status | Key result |
 |---|---|---|
-| 1 — Text | Complete | RoBERTa boosted: F1 = 0.687 |
+| 1 — Text | Complete | RoBERTa boosted: 0.687 single / 0.702 5-fold ensemble (not significantly > 0.687; robust skill ~0.62–0.65) |
 | 2 — Speech | Complete | 1D-CNN: F1 = 0.718 |
 | 3 — Fusion | Code written, not yet run | Target: beat 0.718 |
+| Notebooks | `00`+`03` run on Colab GPU; `01`/`02` validated locally | Committed under `notebooks/` |
 | Annotation | Templates ready, awaiting 3 annotators | 300-clip sample, 90% audio↔text verified |
 
 See [`progress.md`](progress.md) for the full chronological log.
