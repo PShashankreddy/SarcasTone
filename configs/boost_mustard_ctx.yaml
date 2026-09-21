@@ -1,0 +1,10 @@
+# Booster stage 2 + conversation context (option-1 experiment).
+# Identical to boost_mustard.yaml except context is prepended, and embeddings
+# are NOT written (so the champion's canonical fusion npz is untouched).
+model_name: checkpoints/text_roberta_nh
+epochs: 5
+lr: 3.0e-5
+batch_size: 16
+max_len: 128
+seed: 42
+extract_embeddings: false
