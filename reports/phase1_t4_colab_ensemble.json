@@ -1,0 +1,33 @@
+{
+  "source": "Colab T4 run of notebooks/03_experiments.ipynb (commit 865f5d2)",
+  "locked_test_n": 104,
+  "champion_reference_f1": 0.6866,
+  "E1_ensemble_locked_482": {
+    "mean_fold_f1": 0.6239,
+    "ensemble_test_f1": 0.6506,
+    "vs_champion": {
+      "delta_f1_point": -0.0360,
+      "ci95": [-0.1339, 0.0591],
+      "bootstrap_p": 0.7636,
+      "mcnemar_p": 0.5572,
+      "note": "not significant; ensemble confirms honest skill ~0.62-0.65"
+    }
+  },
+  "E2_ensemble_expanded_996": {
+    "mean_fold_f1": 0.6529,
+    "ensemble_test_f1": 0.7017,
+    "vs_champion": "PENDING (significance cell not yet run)"
+  },
+  "E3_deberta_base_locked": {
+    "mean_fold_f1": null,
+    "test_f1": 0.3333,
+    "status": "INVALID - model predicted a single class (tokenizer/underfit issue); do not report",
+    "note": "mean_fold_F1 NaN is a cosmetic table bug (E3 is a single run, not folds)"
+  },
+  "observations": [
+    "E1 mean fold F1 0.6239 reproduces the earlier 5-fold CV mean 0.626 - strong consistency.",
+    "E2 ensemble nominally crosses the 0.70 gate (0.7017) but at n=104 this is not yet established; pairwise significance vs champion is required before any claim.",
+    "Expansion effect: fold-level mean rises 0.6239 -> 0.6529 (+0.029) with ensembling, whereas the single-run T4a fell 0.6866 -> 0.6664; both within noise.",
+    "No test tuning: folds are built from the train split only; best epoch selected on fold-validation."
+  ]
+}
