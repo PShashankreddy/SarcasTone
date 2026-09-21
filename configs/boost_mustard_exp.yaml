@@ -1,0 +1,10 @@
+# T4a: champion recipe (roberta headlines-boosted, 5 ep / lr 3e-5) on the
+# EXPANDED train pool (996). Same locked val/test. No embedding dump (avoid
+# overwriting canonical Phase-3 npz until/unless this is promoted).
+model_name: checkpoints/text_roberta_nh
+epochs: 5
+lr: 3.0e-5
+batch_size: 16
+max_len: 128
+seed: 42
+extract_embeddings: false
