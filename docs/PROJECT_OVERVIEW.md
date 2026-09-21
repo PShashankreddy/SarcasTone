@@ -116,11 +116,20 @@ That is what makes every number below comparable to every other number.
 | 10 | E1: RoBERTa 5-fold ensemble (locked train 482) | no | 5 | 3e-5 | 0.624 (fold mean) | 0.651 | 0.663 |
 | 11 | E2: RoBERTa 5-fold ensemble (expanded train 996) | no | 5 | 3e-5 | 0.653 (fold mean) | **0.702** | 0.702 |
 | 12 | E3: DeBERTa-v3-base (locked train 482) | no | 5 | 2e-5 | — | invalid* | — |
+| 13 | RoBERTa boosted **+ context** | yes | 5 | 3e-5 | 0.703 | 0.638 | 0.654 |
+| 14 | RoBERTa boosted + Implicit_Emotion multitask (λ=0.5) | no | 5 | 3e-5 | 0.624 | 0.639 | 0.644 |
+| 15 | RoBERTa boosted + Implicit_Emotion multitask (λ=0.1) | no | 5 | 3e-5 | 0.626 | 0.626 | 0.644 |
+| 16 | RoBERTa boosted + freeze6 / decay 0.85 (early-stop on val loss) | no | 8 | 3e-5 | 0.655 (val-loss best) | 0.619 | 0.625 |
 
-\* row 12 predicted a single class (macro-F1 0.333 = one-class score on a balanced test);
-excluded pending the SentencePiece tokenizer fix. Rows 10-11 are GPU ensembles: folds built
-from the train split only, best epoch chosen on fold-validation, locked test scored once. See
-`reports/phase1_t4_colab_ensemble.json`.
+\* row 12 (E3) is invalid/excluded: the SentencePiece tokenizer fix (0 UNK) resolved the
+one-class collapse, but on a Colab GPU the model NaNs from step 1 at every lr (1e-5..1e-4),
+even with eager attention; the identical run is finite locally on CPU. Environment-specific,
+recorded and dropped — RoBERTa is unchanged, so rows 1-11 stand. Rows 10-11 are GPU
+ensembles: folds built from the train split only, best epoch chosen on fold-validation,
+locked test scored once. See `reports/phase1_t4_colab_ensemble.json`.
+Rows 13-16 are the closing "no further text lever works" battery (§4.8): context, emotion
+multitask, and regularised/early-stopped fine-tuning all lag the row-9 champion; every CI
+crosses zero at n=104. See `reports/phase1_text_closeout.md`.
 
 \* row 8 evaluated on the News Headlines test set — *different distribution* from
 MUStARD++; shown only to confirm stage-1 learning, never compared to MUStARD rows.
@@ -159,6 +168,13 @@ over-saying "sarcastic".
 > data size / annotation noise, not by backbone or recipe. We therefore proceed with
 > **fusion (Phase 3) as the intended source of gains**, and report text as a distribution,
 > not a single lucky split. Documented, not papered over.
+>
+> **Protocol context (2026-09-21):** with macro-F1, 0.687 sits *inside* the published
+> range for text-only MUStARD++ (BART 0.677 no-context / 0.692 with context; ViFiCLIP
+> 0.716/0.719 — Bhosale et al. 2023, 5-fold averaged over all 1,202). The headline "0.70+"
+> figures in the original MUStARD++ paper are **weighted** F1, not macro. So part of the
+> gap to our 0.70 gate is protocol (metric choice + a single 104-clip test), not purely
+> model deficit — the honest verdict above still stands.
 
 ### 4.7 Phase 1 artifacts
 - Final text checkpoint: `checkpoints/text_roberta_boosted/`
@@ -166,6 +182,24 @@ over-saying "sarcastic".
 - Fusion embeddings: `embeddings/text_{train,val,test}.npz`
 - Old champion backed up: `embeddings/_backup_champion/`
 - Metrics + error analyses: `reports/phase1_*_test_metrics.json`, `reports/phase1_*_error_analysis.md`
+
+### 4.8 Closing battery (2026-09-21): no further text lever works
+Three attempts to improve on the row-9 champion after T6 — all NEGATIVE on the locked
+104-clip test (see `reports/phase1_text_closeout.md`):
+1. **Context** (champion recipe + `--use_context`): val 0.703 but test 0.638 (FN 23→29).
+   Val/test split direction — the 128-token context truncation fits val, hurts test.
+2. **Emotion multitask** (Implicit_Emotion head, λ=0.1/0.5): test 0.626 / 0.639. The aux
+   head competes with the target.
+3. **Regularised fine-tune** (freeze 6 layers, layer-wise decay 0.85, early stop on val
+   *loss*): test 0.619. Val loss and val F1 diverge here; loss-based early stopping
+   underfits versus the champion's best-val-F1 selection.
+
+**Error analysis (champion, FN=23):** missed sarcasm is overwhelmingly *tone-driven* —
+deadpan one-liners ("Nooo!", "Excellent hole, Joe."), rhetorical questions ("Are you still
+enjoying your nap?"), and elaborate overstatement that reads literally when the vocal
+delivery is gone. False positives mirror it (plain sincere questions flagged sarcastic).
+This is the documented, intrinsic limit of text-only and the sharpest argument for
+Phase 3 fusion (prosody disambiguates).
 
 ---
 

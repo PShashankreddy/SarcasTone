@@ -43,9 +43,9 @@ class EarlyFusionMLP(nn.Module):
         return self.head(self.embed(x))
 
 
-def load_pair(split: str, speech_model: str = "cnn"):
+def load_pair(split: str, speech_model: str = "cnn", text_model: str = "text_roberta_boosted"):
     """Aligned text+speech embeddings for one split: X = [text_emb | speech_emb]."""
-    t = np.load(EMB_DIR / f"text_{split}.npz", allow_pickle=True)
+    t = np.load(EMB_DIR / f"{text_model}_{split}.npz", allow_pickle=True)
     s = np.load(EMB_DIR / f"speech_{speech_model}_{split}.npz", allow_pickle=True)
     tmap = {u: i for i, u in enumerate(t["ids"])}
     smap = {u: i for i, u in enumerate(s["ids"])}
@@ -106,13 +106,13 @@ def _align(ids_a, arrays_a, ids_b):
     return np.asarray(ids_a)[ia], [a[ia] for a in arrays_a], ib
 
 
-def text_probs(split: str, device: str = "cpu"):
+def text_probs(split: str, device: str = "cpu", model_name: str = "text_roberta_boosted"):
     """P(sarcasm) per utterance from the fine-tuned BERT checkpoint."""
     from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
     df = pd.read_csv(SPLITS_DIR / f"{split}.csv")
-    tok = AutoTokenizer.from_pretrained(CKPT_DIR / "text_bert")
-    model = AutoModelForSequenceClassification.from_pretrained(CKPT_DIR / "text_bert").to(device).eval()
+    tok = AutoTokenizer.from_pretrained(CKPT_DIR / model_name)
+    model = AutoModelForSequenceClassification.from_pretrained(CKPT_DIR / model_name).to(device).eval()
     ps, ys = [], []
     with torch.no_grad():
         for i in range(0, len(df), 64):

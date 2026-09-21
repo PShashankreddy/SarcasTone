@@ -133,7 +133,7 @@ is met and logged. No parallel jumping ahead.
 | T5 | PARTIAL | significance + CV + speaker-independent exist for champion; expanded-model variants optional |
 | T6 | DONE | honest gate verdict written below + in `docs/PROJECT_OVERVIEW.md` |
 | T7 | CODE DONE, Colab run PENDING | `notebooks/00_setup|01_text|02_speech|03_experiments.ipynb` |
-| T8 | PARTIAL | `docs/DATASETS.md` updated; overview/README close-out pending |
+| T8 | DONE | close-out battery + protocol check + error analysis in `reports/phase1_text_closeout.md`; overview/DATASETS/README updated |
 
 ### T4a finding (honest)
 Running the champion recipe (roberta headlines-boosted, 5 ep / 3e-5) on the
@@ -179,3 +179,16 @@ CNN-vs-BiGRU p=0.0365 all reproduce exactly; locked test SHA unchanged after a
 
 They have **not yet been executed on a Colab GPU**; that run is still pending
 before T7 can be marked fully DONE.
+
+### Post-T6 closing battery (2026-09-21, all NEGATIVE)
+Three "no further text lever works" attempts, all on the locked 104-clip test,
+before closing Phase 1 text (details: `reports/phase1_text_closeout.md`):
+- **Context** (champion recipe + context): val 0.703 but test **0.638** (FN 23→29).
+- **Emotion multitask** (Implicit_Emotion head, λ=0.1 / 0.5): test **0.626 / 0.639**.
+- **Regularised fine-tune** (freeze 6, decay 0.85, early stop on val *loss*): test **0.619**.
+
+Protocol check: our 0.687 macro-F1 is inside the published macro range for
+text-only MUStARD++ (0.677–0.716, Bhosale et al. 2023); the headline 0.70 of the
+original MUStARD++ paper is **weighted** F1. Champion error analysis (FN=23):
+missed sarcasm is tone-driven (deadpan, rhetorical questions, elaborate
+overstatement) — text-only cannot see it; fusion can. Phase 1 text is closed.

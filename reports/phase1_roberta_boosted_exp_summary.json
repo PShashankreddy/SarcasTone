@@ -1,0 +1,23 @@
+{
+  "objective": "T4a - champion recipe on EXPANDED train pool (Option A)",
+  "model_name": "checkpoints/text_roberta_nh -> fine-tuned on MUStARD++",
+  "splits_dir": "data/processed/splits_expanded (train=996, val/test=locked 104/104)",
+  "epochs": 5,
+  "lr": 3e-05,
+  "batch_size": 16,
+  "max_len": 128,
+  "seed": 42,
+  "test_accuracy": 0.6827,
+  "test_precision_macro": 0.7271,
+  "test_recall_macro": 0.6827,
+  "test_f1_macro": 0.6664,
+  "test_f1_sarcasm": 0.5926,
+  "n": 104,
+  "val_f1_by_epoch": [0.4649, 0.5694, 0.6542, 0.6426, 0.6279],
+  "comparison": {
+    "champion_482_roberta_boosted_f1": 0.6866,
+    "expanded_996_roberta_boosted_f1": 0.6664,
+    "delta": -0.0202
+  },
+  "interpretation": "Adding the 514 off-distribution clips did NOT improve the locked test; nominal drop is within the CV noise band (std 0.036 at n=104). The extra clips (BBT S9-12 + Silicon Valley) are a different distribution from the locked test (drawn from the original 690: Friends/classic BBT), so more data shifted the decision boundary unfavourably for the in-distribution test. Honest conclusion: data expansion is not a free win; the 0.70 gate is not reached this way."
+}

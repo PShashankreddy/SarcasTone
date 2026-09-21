@@ -11,6 +11,7 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader
 
+from ..data.make_splits import make_splits
 from ..evaluation.error_analysis import write_error_report
 from ..evaluation.metrics import compute_metrics, format_metrics, plot_confusion
 from ..training.seed import set_seed
@@ -61,7 +62,7 @@ def train_rnn(extract_embs: bool = False):
     if extract_embs:
         for split in ("train", "val", "test"):
             emb, labels = extract_embeddings(model, dl[split], device)
-            np.savez(EMB_DIR / f"speech_{split}.npz",
+            np.savez(EMB_DIR / f"speech_rnn_{split}.npz",
                      ids=splits[split].utt_id.astype(str).values.astype(object),
                      emb=emb, label=labels)
             print(f"speech embeddings [{split}] {emb.shape}")

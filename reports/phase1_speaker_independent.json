@@ -1,0 +1,9 @@
+{
+  "held_out_speakers": ["CHANDLER", "HOWARD", "PERSON", "JOEY", "RACHEL", "RAJ"],
+  "all_test_speakers_absent_from_train": true,
+  "test_size": 344,
+  "sarcasm_rate_test": 0.5,
+  "speaker_independent": {"f1": 0.5816, "acc": 0.5901, "precision_macro": 0.5981, "recall_macro": 0.5901, "n": 344, "confusion": {"TN": 126, "FP": 46, "FN": 95, "TP": 77}},
+  "random_split_baseline": {"f1": 0.5845, "acc": 0.5959},
+  "note": "same roberta-base recipe as the 5-fold CV; held-out speakers never appear in train. PERSON is a generic label shared across shows; nominal-identity disjointness is inherently limited."
+}

@@ -1,0 +1,23 @@
+{
+  "accuracy": 0.6538461538461539,
+  "precision_macro": 0.6873873873873875,
+  "recall_macro": 0.6538461538461539,
+  "f1_macro": 0.637630662020906,
+  "f1_sarcasm": 0.5609756097560976,
+  "confusion_matrix": [
+    [
+      45,
+      7
+    ],
+    [
+      29,
+      23
+    ]
+  ],
+  "n": 104,
+  "model_name": "checkpoints/text_roberta_nh",
+  "use_context": true,
+  "lr": 3e-05,
+  "epochs": 5,
+  "batch_size": 16
+}

@@ -1,0 +1,23 @@
+{
+  "accuracy": 0.625,
+  "precision_macro": 0.6333333333333333,
+  "recall_macro": 0.625,
+  "f1_macro": 0.6190476190476191,
+  "f1_sarcasm": 0.5714285714285714,
+  "confusion_matrix": [
+    [
+      39,
+      13
+    ],
+    [
+      26,
+      26
+    ]
+  ],
+  "n": 104,
+  "base": "checkpoints/text_roberta_nh",
+  "freeze_layers": 6,
+  "layer_lr_decay": 0.85,
+  "lr": 3e-05,
+  "best_val_loss": 0.6546865426577054
+}
