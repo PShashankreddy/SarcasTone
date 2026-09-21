@@ -113,6 +113,14 @@ That is what makes every number below comparable to every other number.
 | 7 | RoBERTa fine-tuned | no | 5 | 3e-5 | 0.671 | 0.654 | 0.654 |
 | 8 | News Headlines only (sanity) | — | 1 | 2e-5 | 0.920 | 0.919* | 0.920 |
 | 9 | **RoBERTa boosted → FINAL TEXT** | no | 5 | 3e-5 | **0.673** | **0.687** | 0.692 |
+| 10 | E1: RoBERTa 5-fold ensemble (locked train 482) | no | 5 | 3e-5 | 0.624 (fold mean) | 0.651 | 0.663 |
+| 11 | E2: RoBERTa 5-fold ensemble (expanded train 996) | no | 5 | 3e-5 | 0.653 (fold mean) | **0.702** | 0.702 |
+| 12 | E3: DeBERTa-v3-base (locked train 482) | no | 5 | 2e-5 | — | invalid* | — |
+
+\* row 12 predicted a single class (macro-F1 0.333 = one-class score on a balanced test);
+excluded pending the SentencePiece tokenizer fix. Rows 10-11 are GPU ensembles: folds built
+from the train split only, best epoch chosen on fold-validation, locked test scored once. See
+`reports/phase1_t4_colab_ensemble.json`.
 
 \* row 8 evaluated on the News Headlines test set — *different distribution* from
 MUStARD++; shown only to confirm stage-1 learning, never compared to MUStARD rows.
@@ -138,12 +146,19 @@ over-saying "sarcastic".
 4. The News-Headlines booster closed most of the gap (0.654 → 0.687, +3.3 pts) with a far
    better error profile.
 
-### 4.6 Phase 1 gate verdict
-> **Gate: text test F1 ≥ 0.70 → NOT met (final 0.687, acc 0.692).**
-> The shortfall is within the noise band for n=104 and consistent with published
-> text-only results on this benchmark. We **proceeded to Phase 2 as planned**, with
-> fusion (Phase 3) as the intended source of gains. The near-miss was fully documented,
-> not papered over.
+### 4.6 Phase 1 gate verdict (final, honest)
+> **Gate: text test F1 ≥ 0.70 → NOT met in any statistically meaningful sense.**
+> The best point estimate is the expanded 5-fold ensemble E2 = **0.702**, which nominally
+> clears 0.70, but it is **statistically indistinguishable** from the 0.687 single-split
+> champion (dF1 +0.015, 95% CI [-0.070, +0.102], p=0.36) and from the locked ensemble E1
+> (dF1 +0.051, CI [-0.031, +0.135], p=0.13). Every paired-bootstrap CI crosses zero.
+> E1's fold-mean 0.624 reproduces the earlier 5-fold CV mean 0.626, so the **honest text
+> skill is ~0.62–0.65**; the 0.687/0.702 numbers are within the n=104 noise band.
+> Full expansion from MUStARD++ (1,202) did **not** reliably help (single run 0.687→0.666,
+> ensemble fold-mean 0.624→0.653 - both within noise). The text-only ceiling here is set by
+> data size / annotation noise, not by backbone or recipe. We therefore proceed with
+> **fusion (Phase 3) as the intended source of gains**, and report text as a distribution,
+> not a single lucky split. Documented, not papered over.
 
 ### 4.7 Phase 1 artifacts
 - Final text checkpoint: `checkpoints/text_roberta_boosted/`
@@ -215,10 +230,10 @@ for the supervised CNN (which uses human labels, not ASR).
 
 | | Text (Phase 1) | Speech (Phase 2) |
 |---|---|---|
-| **Final model** | RoBERTa boosted | 1D-CNN |
-| **Test macro-F1** | 0.687 | **0.718** |
-| **Test acc** | 0.692 | 0.7212 |
-| **Gate** | 0.70 — missed by 0.013 | 0.45 — passed by 0.268 |
+| **Final model** | RoBERTa boosted (E2 ensemble best point est.) | 1D-CNN |
+| **Test macro-F1** | 0.687 single / **0.702** E2 ensemble (ns) | **0.718** |
+| **Test acc** | 0.692 / 0.702 | 0.7212 |
+| **Gate** | 0.70 — not met significantly (all CIs cross 0) | 0.45 — passed by 0.268 |
 
 **Takeaway so far:** the voice beats the words in this benchmark. Phase 3 (fusion) is
 designed to test whether combining them beats the voice alone (target: > 0.718), which
@@ -352,7 +367,7 @@ crashes on inline `python -c` → write temp `.py`; tqdm floods → filter; scri
 
 | Metric | Text (RoBERTa-boosted) | Speech (1D-CNN) |
 |---|---|---|
-| Test macro-F1 | 0.687 | **0.718** |
+| Test macro-F1 | 0.687 (E2 ensemble 0.702, ns) | **0.718** |
 | Test acc | 0.692 | 0.7212 |
 | Val F1 | 0.673 | 0.637 |
 | Gate | ≥0.70 ✗ | ≥0.45 ✓ |

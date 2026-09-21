@@ -1,33 +1,29 @@
 {
-  "source": "Colab T4 run of notebooks/03_experiments.ipynb (commit 865f5d2)",
+  "source": "Colab T4 run of notebooks/03_experiments.ipynb (commit 865f5d2) + pairwise significance cell",
   "locked_test_n": 104,
   "champion_reference_f1": 0.6866,
   "E1_ensemble_locked_482": {
     "mean_fold_f1": 0.6239,
-    "ensemble_test_f1": 0.6506,
-    "vs_champion": {
-      "delta_f1_point": -0.0360,
-      "ci95": [-0.1339, 0.0591],
-      "bootstrap_p": 0.7636,
-      "mcnemar_p": 0.5572,
-      "note": "not significant; ensemble confirms honest skill ~0.62-0.65"
-    }
+    "ensemble_test_f1": 0.6506
   },
   "E2_ensemble_expanded_996": {
     "mean_fold_f1": 0.6529,
-    "ensemble_test_f1": 0.7017,
-    "vs_champion": "PENDING (significance cell not yet run)"
+    "ensemble_test_f1": 0.7017
   },
   "E3_deberta_base_locked": {
     "mean_fold_f1": null,
     "test_f1": 0.3333,
-    "status": "INVALID - model predicted a single class (tokenizer/underfit issue); do not report",
-    "note": "mean_fold_F1 NaN is a cosmetic table bug (E3 is a single run, not folds)"
+    "status": "INVALID - predicted a single class (0.3333 = one-class macro-F1 on a balanced test). Not reported. Needs the SentencePiece tokenizer fix (now added to the notebook) before any retry.",
+    "note": "mean_fold_F1 null is a cosmetic table artifact (E3 is a single run, not folds)"
   },
-  "observations": [
-    "E1 mean fold F1 0.6239 reproduces the earlier 5-fold CV mean 0.626 - strong consistency.",
-    "E2 ensemble nominally crosses the 0.70 gate (0.7017) but at n=104 this is not yet established; pairwise significance vs champion is required before any claim.",
-    "Expansion effect: fold-level mean rises 0.6239 -> 0.6529 (+0.029) with ensembling, whereas the single-run T4a fell 0.6866 -> 0.6664; both within noise.",
-    "No test tuning: folds are built from the train split only; best epoch selected on fold-validation."
+  "pairwise_significance": {
+    "E2_vs_champion": {"delta_f1_point": 0.0150, "ci95": [-0.0704, 0.1017], "bootstrap_p": 0.3588, "mcnemar_p": 1.0},
+    "E2_vs_E1":       {"delta_f1_point": 0.0511, "ci95": [-0.0312, 0.1352], "bootstrap_p": 0.1284, "mcnemar_p": 0.3833},
+    "E1_vs_champion": {"delta_f1_point": -0.0360, "ci95": [-0.1339, 0.0591], "bootstrap_p": 0.7636, "mcnemar_p": 0.5572}
+  },
+  "conclusion": "No text configuration significantly outperforms another on the locked 104-clip test; every paired-bootstrap 95% CI crosses zero. E2 (expanded 5-fold ensemble, 0.7017) is the best point estimate and nominally meets the 0.70 gate, but is statistically indistinguishable from the 0.6866 champion (p=0.36) and from E1 (p=0.13). E1's fold-mean 0.6239 reproduces the earlier 5-fold CV mean 0.626, confirming honest text skill ~0.62-0.65. Text-only performance is capped by data size / annotation noise at this test size; the intended remaining gain is multimodal fusion (Phase 3).",
+  "integrity_notes": [
+    "Folds are built from the train split only; best epoch chosen on fold-validation; test scored once. No test tuning.",
+    "Expansion effect is inconsistent and within noise: single-run T4a 0.6866->0.6664 (-0.020), ensemble fold-mean E1->E2 0.6239->0.6529 (+0.029), ensemble test E1->E2 0.6506->0.7017 (+0.051, ns)."
   ]
 }

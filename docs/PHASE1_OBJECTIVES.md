@@ -127,11 +127,11 @@ is met and logged. No parallel jumping ahead.
 | T1 | DONE | Option A decision above |
 | T2 | DONE | `data/raw/mustard_pp/` (6041-row CSV, 514-row expansion CSV, both HF zips); 1204 WAV + 1204 MP4 |
 | T3 | DONE | `data/processed/splits_expanded/`; val/test byte-identical (SHA-256), train 482→996 (498/498) |
-| T4a | DONE (negative) | `reports/phase1_roberta_boosted_exp_*` — test F1 **0.6664** vs 0.6866 on 482 |
-| T4b | PENDING | DeBERTa-base attempt not yet run |
+| T4a | DONE | `reports/phase1_roberta_boosted_exp_*` (single) + `reports/phase1_t4_colab_ensemble.json` (ensemble) |
+| T4b | DONE (invalid) | DeBERTa predicted one class (F1 0.3333); tokenizer fix added to notebook |
 | T4c | PENDING | PodSarc booster not yet run |
-| T5 | PENDING | rigor suite not yet re-run on a final model |
-| T6 | PENDING | gate verdict not yet written |
+| T5 | PARTIAL | significance + CV + speaker-independent exist for champion; expanded-model variants optional |
+| T6 | DONE | honest gate verdict written below + in `docs/PROJECT_OVERVIEW.md` |
 | T7 | CODE DONE, Colab run PENDING | `notebooks/00_setup|01_text|02_speech|03_experiments.ipynb` |
 | T8 | PARTIAL | `docs/DATASETS.md` updated; overview/README close-out pending |
 
@@ -145,6 +145,26 @@ Why: the 514 added clips are **off-distribution** relative to the locked test
 drawn from the original 690: Friends / classic BBT). Adding data shifted the
 decision boundary unfavourably for the in-distribution test. Conclusion:
 "more data" is not a free win here; the 0.70 gate is not reached this way.
+
+### T4 (Colab GPU ensembles) + T6 gate verdict (honest)
+Run on a Colab T4 (`notebooks/03_experiments.ipynb`), full results in
+`reports/phase1_t4_colab_ensemble.json`:
+
+| Comparison | dF1 | 95% CI | p (boot / McNemar) |
+|---|---|---|---|
+| E2 (expanded ensemble, 0.7017) vs champion (0.6866) | +0.015 | [-0.070, +0.102] | 0.359 / 1.000 |
+| E2 vs E1 (locked ensemble, 0.6506) | +0.051 | [-0.031, +0.135] | 0.128 / 0.383 |
+| E1 vs champion | -0.036 | [-0.134, +0.059] | 0.764 / 0.557 |
+
+**Verdict:** the 0.70 gate is **not met in any statistically meaningful sense**.
+No text configuration significantly beats another on the locked 104-clip test -
+every paired-bootstrap 95% CI crosses zero. E2 (expanded 5-fold ensemble)
+nominalises 0.7017, but it is statistically indistinguishable from the 0.6866
+champion (p=0.36). E1's fold-mean 0.6239 reproduces the earlier 5-fold CV mean
+0.626, so the honest text skill is **~0.62-0.65**. The bottleneck at this test
+size is data/annotation noise, not backbone or training recipe. The intended
+source of further gain is **multimodal fusion (Phase 3)**, not text tuning.
+E3 (DeBERTa) is invalid and excluded (predicted a single class).
 
 ### T7 status (honest)
 The notebooks are written and their Python logic is **locally validated**
